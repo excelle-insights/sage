@@ -38,11 +38,12 @@ class SageManager
     ) {
         EnvLoader::load($envRoot);
 
-        $this->baseUrl   = $_ENV['QBO_BASE_URL']
-            ?? 'https://sage.api.intuit.com';
-        $this->companyId = $companyId
-            ?? $_ENV['QBO_REALM_ID']
-            ?? '';
+        $this->baseUrl   = $_ENV['SAGE_BASE_URL']
+            ?? 'https://resellers.accounting.sageone.co.za/api/2.0.0';
+
+        // $this->companyId = $companyId
+        //     ?? $_ENV['SAGE_REALM_ID']
+        //     ?? '';
 
         if (!$pdo) {
             $dsn  = $_ENV['DB_DSN'] ?? null;
@@ -62,7 +63,7 @@ class SageManager
 
         $this->pdo = $pdo;
 
-                /**
+        /**
          * 🔌 HTTP client
          * Default is instantiated internally
          */
@@ -86,6 +87,7 @@ class SageManager
     {
         return $this->auth->getAuthUrl();
     }
+
     public function getPdo(): PDO
     {
         return $this->pdo;
@@ -95,6 +97,10 @@ class SageManager
         $this->auth->exchangeAuthorizationCode($code, $realmId);
     }
 
+    public function getApiUrl(string $endpoint): string
+    {
+        return $this->auth->getApiUrl($endpoint);
+    }
     /**
      * -------------------------
      * Customers
@@ -149,7 +155,7 @@ class SageManager
 
         return $service->create($data);
     }
-    
+
     /**
      * -------------------------
      * Payments

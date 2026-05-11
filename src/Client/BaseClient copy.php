@@ -2,7 +2,7 @@
 
 namespace ExcelleInsights\Sage\Client;
 
-use ExcelleInsights\Sage\Auth\StaticAuth;
+use ExcelleInsights\Sage\Auth\Authentication;
 use ExcelleInsights\Sage\Contracts\HttpClientInterface;
 use RuntimeException;
 
@@ -10,13 +10,13 @@ abstract class BaseClient
 {
     protected string $baseUrl;
     protected string $companyId;
-    protected StaticAuth $auth;
+    protected Authentication $auth;
     protected HttpClientInterface $http;
 
     public function __construct(
         string $baseUrl,
         string $companyId,
-        StaticAuth $auth,
+        Authentication $auth,
         HttpClientInterface $http
     ) {
         $this->baseUrl   = rtrim($baseUrl, '/');
@@ -25,18 +25,27 @@ abstract class BaseClient
         $this->http      = $http;
     }
 
+    /**
+     * Perform a HTTP request to Sage Online API
+     *
+     * @param string $method GET|POST|PUT|DELETE
+     * @param string $endpoint API endpoint path
+     * @param array  $data Optional payload
+     *
+     * @return object JSON-decoded response
+     * @throws RuntimeException on HTTP error or invalid JSON
+     */
     protected function sendRequest(string $method, string $endpoint, array $data = []): object
     {
-        // URL already has ?APIKey=xxx appended by getApiUrl()
-        $url = $this->auth->getApiUrl($endpoint);
+        $url = $this->baseUrl . $endpoint;
 
         $headers = [
             'Accept'        => 'application/json',
             'Content-Type'  => 'application/json',
-            // Basic auth instead of Bearer
-            'Authorization' => $this->auth->getAuthHeader(),
+            'Authorization' => 'Bearer ' . $this->auth->accessToken(),
         ];
 
+        // Let the HttpClient handle JSON encoding internally
         $response = $this->http->send(
             $method,
             $url,
@@ -45,33 +54,42 @@ abstract class BaseClient
         );
 
         $status = $response['status'] ?? 0;
-        $body   = $response['body']   ?? null;
+        $body   = $response['body'] ?? null;
 
+        // Decode JSON safely
         if (is_string($body)) {
             $decoded = json_decode($body);
             if (json_last_error() !== JSON_ERROR_NONE) {
                 throw new RuntimeException(
-                    "Invalid JSON response ({$status}): " . json_last_error_msg()
+                    "Invalid JSON response from  ({$status}): " . json_last_error_msg()
                 );
             }
         } else {
             $decoded = $body;
         }
 
+        // Handle API errors
         if ($status >= 400) {
-            $message = is_object($decoded) && property_exists($decoded, 'Message')
-                ? $decoded->Message
+            $message = is_object($decoded) && property_exists($decoded, 'Fault')
+                ? json_encode($decoded->Fault)
                 : json_encode($decoded);
 
-            throw new RuntimeException("Sage API Error ({$status}): {$message}");
+            throw new RuntimeException("QBO API Error ({$status}): {$message}");
         }
 
         return is_object($decoded) ? $decoded : (object) $decoded;
     }
 
-    // Sage endpoint builder — replaces the QBO /v3/company/{id}/ pattern
-    protected function endpoint(string $path): string
+    /**
+     * Build standard Sage Online API endpoint with minorversion
+     */
+    protected function endpoint(string $path, int $minorVersion = 69): string
     {
-        return ltrim($path, '/');
+        return sprintf(
+            '/v3/company/%s/%s?minorversion=%d',
+            $this->companyId,
+            ltrim($path, '/'),
+            $minorVersion
+        );
     }
 }
