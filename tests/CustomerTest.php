@@ -16,7 +16,6 @@ class CustomerTest extends TestCase
         $this->manager = new SageManager();
     }
 
-    // Connection
     public function testFetchCompany(): void
     {
         $url    = $this->manager->getApiUrl('Company/Get');
@@ -44,9 +43,25 @@ class CustomerTest extends TestCase
         $this->assertEquals(200, $status);
     }
 
-    // Customers
-    
+    // public function testFetchCustomers(): void
+    // {
+    //     $url = $this->manager->getApiUrl('Customer/Get');
 
+    //     $ch = curl_init($url);
+    //     curl_setopt_array($ch, [
+    //         CURLOPT_RETURNTRANSFER => true,
+    //         CURLOPT_HTTPHEADER     => ['Accept: application/json'],
+    //     ]);
 
+    //     $response = curl_exec($ch);
+    //     $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    //     curl_close($ch);
 
+    //     $this->assertEquals(200, $status);
+
+    //     $data = json_decode($response, true);
+    //     $this->assertNotNull($data);
+
+    //     fwrite(STDOUT, "\nCustomers: " . json_encode($data, JSON_PRETTY_PRINT) . "\n");
+    // }
 }

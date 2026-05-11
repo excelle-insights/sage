@@ -84,31 +84,6 @@ class SageManager
      * Customers
      * -------------------------
      */
-
-    public function getCustomers(): object
-    {
-        $client = new CustomerClient(
-            $this->baseUrl,
-            $this->companyId,
-            $this->auth,
-            $this->http
-        );
-
-        return $client->getAll();
-    }
-
-    public function getCustomer(string $id): object
-    {
-        $client = new CustomerClient(
-            $this->baseUrl,
-            $this->companyId,
-            $this->auth,
-            $this->http
-        );
-
-        return $client->getById($id);
-        
-    }
     // public function createCustomer(array $data): object
     // {
     //     $repo = new CustomerRepository($this->pdo);

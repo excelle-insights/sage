@@ -25,8 +25,8 @@ class StaticAuth
         $baseUrl = $_ENV['SAGE_BASE_URL'] ?? '';
         $companyId = $_ENV['SAGE_COMPANY_ID'] ?? '';
 
-        return rtrim($baseUrl, '/') . '/' . ltrim($endpoint, '/'). '?APIKey='    . $this->apiKey . '&companyid=' . $companyId;   
-         }
+        return rtrim($baseUrl, '/') . '/' . ltrim($endpoint, '/') . '?APIKey=' . $this->apiKey;
+    }
 
     public function getAuthHeader(): string
     {
