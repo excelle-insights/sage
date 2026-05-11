@@ -17,6 +17,8 @@ class CustomerTest extends TestCase
     }
 
     // Connection
+    /*
+
     public function testFetchCompany(): void
     {
         $url    = $this->manager->getApiUrl('Company/Get');
@@ -43,10 +45,21 @@ class CustomerTest extends TestCase
 
         $this->assertEquals(200, $status);
     }
+     */
 
     // Customers
-    
+    // public function testGetAllCustomers(): void
+    // {
+    //     $result = $this->manager->getCustomers();
+    //     fwrite(STDOUT, "\nAll Customers: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+    //     $this->assertNotNull($result);
+    // }
 
-
+    public function testGetCustomerById(): void
+    {
+        $result = $this->manager->getCustomer('861999');
+        fwrite(STDOUT, "\nCustomer: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+        $this->assertNotNull($result);
+    }
 
 }

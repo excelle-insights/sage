@@ -12,6 +12,7 @@ class CustomerClient extends BaseClient
     {
         return $this->sendRequest('GET', 'Customer/Get');
     }
+    
 
     /**
      * Get a single customer by ID
