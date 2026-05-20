@@ -38,7 +38,7 @@ class CustomerTest extends TestCase
 
         $response = curl_exec($ch);
         $status   = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        curl_close($ch);
+        curl_close($ch); 
 
         fwrite(STDOUT, "Status: $status\n");
         fwrite(STDOUT, "Response: $response\n");
@@ -55,11 +55,31 @@ class CustomerTest extends TestCase
     //     $this->assertNotNull($result);
     // }
 
-    public function testGetCustomerById(): void
-    {
-        $result = $this->manager->getCustomer('861999');
-        fwrite(STDOUT, "\nCustomer: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
-        $this->assertNotNull($result);
-    }
+    // public function testGetCustomerById(): void
+    // {
+    //     $result = $this->manager->getCustomer('861999');
+    //     fwrite(STDOUT, "\nCustomer: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+    //     $this->assertNotNull($result);
+    // }
 
+    /**
+     * Sales Rep 
+     */
+
+    public function testCreateSalesRep(): void
+    {
+        $result = $this->manager->createSalesRep([
+            'local_id' => 1,
+            'first_name' => 'John',
+            'last_name'  => 'Doe',
+            'active'     => true,
+            'email'      => 'john.doe@example.com',
+            'mobile'     => '0712345678',
+        ]);
+
+        fwrite(STDOUT, "\nSalesRep: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
 }

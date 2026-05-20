@@ -22,4 +22,12 @@ class CustomerClient extends BaseClient
     {
         return $this->sendRequest('GET', "Customer/Get/{$id}");
     }
+
+    /**
+     * Create a new customer
+     */
+
 }
+
+
+
