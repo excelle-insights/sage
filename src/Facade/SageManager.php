@@ -7,6 +7,7 @@ use PDO;
 use ExcelleInsights\Sage\Auth\StaticAuth;
 use ExcelleInsights\Sage\Contracts\HttpClientInterface;
 use ExcelleInsights\Sage\Support\EnvLoader;
+
 use ExcelleInsights\Sage\Client\CustomerClient;
 use ExcelleInsights\Sage\Repositories\CustomerRepository;
 
@@ -14,6 +15,9 @@ use ExcelleInsights\Sage\Client\SalesRepClient;
 use ExcelleInsights\Sage\Repositories\SalesRepRepository;
 use ExcelleInsights\Sage\Services\SalesRepSyncService;
 
+use ExcelleInsights\Sage\Client\CustomerCategoryClient;
+use ExcelleInsights\Sage\Repositories\CustomerCategoryRepository;
+use ExcelleInsights\Sage\Services\CustomerCategorySyncService;
 
 use ExcelleInsights\Sage\Client\InvoiceClient;
 use ExcelleInsights\Sage\Client\PaymentClient;
@@ -157,6 +161,39 @@ class SageManager
             $this->http
         );
         $service = new SalesRepSyncService($repo, $client);
+
+        return $service->getByLocalId($localId);
+    }
+    /**
+     * -------------------------
+     * Customer Category
+     * -------------------------
+     */
+
+    public function createCustomerCategory(array $data): object
+    {
+        $repo    = new CustomerCategoryRepository($this->pdo);
+        $client  = new CustomerCategoryClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new CustomerCategorySyncService($repo, $client);
+
+        return $service->create($data);
+    }
+
+    public function getCustomerCategory(int $localId): object
+    {
+        $repo    = new CustomerCategoryRepository($this->pdo);
+        $client  = new CustomerCategoryClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new CustomerCategorySyncService($repo, $client);
 
         return $service->getByLocalId($localId);
     }

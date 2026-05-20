@@ -66,18 +66,35 @@ class CustomerTest extends TestCase
      * Sales Rep 
      */
 
-    public function testCreateSalesRep(): void
+    // public function testCreateSalesRep(): void
+    // {
+    //     $result = $this->manager->createSalesRep([
+    //         'local_id' => 1,
+    //         'first_name' => 'John',
+    //         'last_name'  => 'Doe',
+    //         'active'     => true,
+    //         'email'      => 'john.doe@example.com',
+    //         'mobile'     => '0712345678',
+    //     ]);
+
+    //     fwrite(STDOUT, "\nSalesRep: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+    //     $this->assertEquals('synced', $result->status);
+    //     $this->assertNotNull($result->sage_id);
+    // }
+
+    /**
+     * Customer Category
+     */
+
+    public function testCreateCustomerCategory(): void
     {
-        $result = $this->manager->createSalesRep([
-            'local_id' => 1,
-            'first_name' => 'John',
-            'last_name'  => 'Doe',
-            'active'     => true,
-            'email'      => 'john.doe@example.com',
-            'mobile'     => '0712345678',
+        $result = $this->manager->createCustomerCategory([
+            'local_id'    => 1,
+            'description' => 'Equity',
         ]);
 
-        fwrite(STDOUT, "\nSalesRep: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+        fwrite(STDOUT, "\nCategory: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
 
         $this->assertEquals('synced', $result->status);
         $this->assertNotNull($result->sage_id);

@@ -2,14 +2,14 @@
 
 namespace ExcelleInsights\Sage\Services;
 
-use ExcelleInsights\Sage\Client\SalesRepClient;
-use ExcelleInsights\Sage\Repositories\SalesRepRepository;
+use ExcelleInsights\Sage\Client\CustomerCategoryClient;
+use ExcelleInsights\Sage\Repositories\CustomerCategoryRepository;
 
-class SalesRepSyncService
+class CustomerCategorySyncService
 {
     public function __construct(
-        private SalesRepRepository $repo,
-        private SalesRepClient     $client
+        private CustomerCategoryRepository $repo,
+        private CustomerCategoryClient     $client
     ) {}
 
     public function create(array $data): object
@@ -21,7 +21,7 @@ class SalesRepSyncService
         try {
             $result = $this->client->create($data);
 
-            // 3. attach sage_id to local record
+            // 3. attach sage_id
             $this->repo->markSynced($localId, $result->ID);
 
             return (object) [
@@ -41,24 +41,18 @@ class SalesRepSyncService
         }
     }
 
-    /**
-     * Fetch from local DB by primary key
-     * Uses sage_id to fetch from Sage if needed
-     */
     public function getByLocalId(int $localId): object
     {
         $local = $this->repo->findByLocalId($localId);
 
         if (!$local) {
-            throw new \RuntimeException("SalesRep with local ID {$localId} not found");
+            throw new \RuntimeException("Category with local ID {$localId} not found");
         }
 
-        // if synced, fetch fresh from Sage using sage_id
-        if ($local['status'] === 'synced' && $local['sage_id']) {
-            return $this->client->getById((int) $local['sage_id']);
+        if ($local->status === 'synced' && $local->sage_id) {
+            return $this->client->getById((int) $local->sage_id);
         }
 
-        // not yet synced — return local data
-        return (object) $local;
+        return $local;
     }
 }
