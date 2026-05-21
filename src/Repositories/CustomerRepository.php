@@ -8,154 +8,81 @@ class CustomerRepository
 {
     public function __construct(private PDO $pdo) {}
 
-    /**
-     * Insert local customer (before  sync)
-     */
     public function create(array $data): int
     {
-        $stmt = $this->pdo->prepare("
-            INSERT INTO _customers (
-                local_id,
-                _company_id,
-                name,
-                display_name,
-                email,
-                phone,
-                company_name,
-                country,
-                city,
-                postal_code,
-                line,
-                active,
-                created_at,
-                updated_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())
-        ");
+        $stmt = $this->pdo->prepare(
+            "INSERT INTO sage_customers
+                (local_id, name, active,sage_category_id,sage_salesrep_id, email, mobile, telephone, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+        );
 
         $stmt->execute([
             $data['local_id'],
-            $data['qbo_company_id'],
             $data['name'],
-            $data['display_name'] ?? $data['name'],
-            $data['email'] ?? null,
-            $data['phone'] ?? null,
-            $data['company_name'] ?? null,
-            $data['country'] ?? null,
-            $data['city'] ?? null,
-            $data['postal_code'] ?? null,
-            $data['line'] ?? null,
-            $data['active'] ?? true,
+            $data['active']             ?? true,
+            $data['sage_category_id']  ?? null,
+            $data['sage_salesrep_id'] ?? null,
+            $data['email']              ?? null,
+            $data['mobile']             ?? null,
+            $data['telephone']          ?? null,
         ]);
 
         return (int) $this->pdo->lastInsertId();
     }
 
-    /**
-     * Attach  identifiers after successful sync
-     */
-    public function markSynced(
-        int $id,
-        string $qboId,
-        string $syncToken
-    ): void {
-        $stmt = $this->pdo->prepare("
-            UPDATE _customers
-            SET _id = ?, sync_token = ?, status = ?, last_attempt_at = NOW()
-            WHERE id = ?
-        ");
-
-        $stmt->execute([$qboId, $syncToken, 'synced', $id]);
-    }
-    public function markFailed(int $id, string $error): void
-    {
-        $stmt = $this->pdo->prepare("
-            UPDATE _customers
-            SET status = 'failed',
-                retry_count = retry_count + 1,
-                last_attempt_at = NOW(),
-                error_message = :error
-            WHERE id = :id
-        ");
-        $stmt->execute([':error' => $error, ':id' => $id]);
-    }
-
-    /**
-     * Update local customer (local source of truth)
-     */
-    public function update(int $id, array $data): void
-    {
-        $stmt = $this->pdo->prepare("
-            UPDATE _customers
-            SET
-                name = ?,
-                display_name = ?,
-                email = ?,
-                phone = ?,
-                company_name = ?,
-                country = ?,
-                city = ?,
-                postal_code = ?,
-                line = ?,
-                active = ?,
-                updated_at = NOW()
-            WHERE id = ?
-        ");
-
-        $stmt->execute([
-            $data['name'],
-            $data['display_name'] ?? $data['name'],
-            $data['email'] ?? null,
-            $data['phone'] ?? null,
-            $data['company_name'] ?? null,
-            $data['country'] ?? null,
-            $data['city'] ?? null,
-            $data['postal_code'] ?? null,
-            $data['line'] ?? null,
-            $data['active'] ?? true,
-            $id
-        ]);
-    }
-
-    /**
-     * Find by local ID
-     */
-    public function find(int $id): ?object
+    public function findById(int $id): ?object
     {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM _customers WHERE id = ?"
+            "SELECT * FROM sage_customers WHERE id = ?"
         );
         $stmt->execute([$id]);
 
         return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
 
-    /**
-     * Find by  ID (used by webhooks)
-     */
-    public function findByQboId(string $qboId): ?object
+    public function findByLocalId(int $localId): ?object
     {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM _customers WHERE _id = ?"
+            "SELECT * FROM sage_customers WHERE local_id = ?"
         );
-        $stmt->execute([$qboId]);
+        $stmt->execute([$localId]);
 
         return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
 
-    /**
-     * Customers pending initial sync
-     */
-    public function getPending(int $maxRetries = 5): array
+    public function findBySageId(int $sageId): ?object
     {
-        $stmt = $this->pdo->prepare("
-        SELECT *
-        FROM _customers
-        WHERE status IN ('pending','failed')
-          AND retry_count < :maxRetries
-        ORDER BY last_attempt_at ASC
-    ");
-        $stmt->execute([':maxRetries' => $maxRetries]);
+        $stmt = $this->pdo->prepare(
+            "SELECT * FROM sage_customers WHERE sage_id = ?"
+        );
+        $stmt->execute([$sageId]);
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
+    }
+
+    public function markSynced(int $localId, int $sageId): void
+    {
+        $stmt = $this->pdo->prepare(
+            "UPDATE sage_customers SET sage_id = ?, status = 'synced', error = NULL WHERE id = ?"
+        );
+        $stmt->execute([$sageId, $localId]);
+    }
+
+    public function markFailed(int $localId, string $error): void
+    {
+        $stmt = $this->pdo->prepare(
+            // "UPDATE sage_customers SET status = 'failed', error = ?, retry_count = retry_count + 1 WHERE id = ?"
+            "UPDATE sage_customers SET status = 'failed', error = ? WHERE id = ?"
+
+        );
+        $stmt->execute([$error, $localId]);
+    }
+
+    public function getPending(): array
+    {
+        $stmt = $this->pdo->query(
+            "SELECT * FROM sage_customers WHERE status IN ('pending', 'failed') AND retry_count < 5"
+        );
+        return $stmt->fetchAll(PDO::FETCH_OBJ);
     }
 }

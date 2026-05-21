@@ -62,41 +62,60 @@ class CustomerTest extends TestCase
     //     $this->assertNotNull($result);
     // }
 
+    public function testCreateCustomer(): void
+    {
+        $result = $this->manager->createCustomer([
+            'local_id'           => 2,
+            'name'               => 'Akinyi Customer',
+            'email'               => 'Akinyi@gmail.com',
+            'mobile'               => '0700453259',
+            'active'             => true,
+            'category_local_id'  => 1,  // must already be synced
+            'sales_rep_local_id' => 2,  // must already be synced
+        ]);
+
+        fwrite(STDOUT, "\nCustomer: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
+
     /**
      * Sales Rep 
      */
 
-    // public function testCreateSalesRep(): void
-    // {
-    //     $result = $this->manager->createSalesRep([
-    //         'local_id' => 1,
-    //         'first_name' => 'John',
-    //         'last_name'  => 'Doe',
-    //         'active'     => true,
-    //         'email'      => 'john.doe@example.com',
-    //         'mobile'     => '0712345678',
-    //     ]);
+    public function testCreateSalesRep(): void
+    {
+        $result = $this->manager->createSalesRep([
+            'local_id' => 2,
+            'first_name' => 'Jane',
+            'last_name'  => 'Doe',
+            'active'     => true,
+            'email'      => 'jane.doe@example.com',
+            'mobile'     => '0712345678',
+        ]);
 
-    //     fwrite(STDOUT, "\nSalesRep: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+        fwrite(STDOUT, "\nSalesRep: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
 
-    //     $this->assertEquals('synced', $result->status);
-    //     $this->assertNotNull($result->sage_id);
-    // }
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
 
     /**
      * Customer Category
      */
 
-    public function testCreateCustomerCategory(): void
-    {
-        $result = $this->manager->createCustomerCategory([
-            'local_id'    => 1,
-            'description' => 'Equity',
-        ]);
+    // public function testCreateCustomerCategory(): void
+    // {
+    //     $result = $this->manager->createCustomerCategory([
+    //         'local_id'    => 1,
+    //         'description' => 'Equity',
+    //     ]);
 
-        fwrite(STDOUT, "\nCategory: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+    //     fwrite(STDOUT, "\nCategory: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
 
-        $this->assertEquals('synced', $result->status);
-        $this->assertNotNull($result->sage_id);
-    }
+    //     $this->assertEquals('synced', $result->status);
+    //     $this->assertNotNull($result->sage_id);
+    // }
 }

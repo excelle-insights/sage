@@ -52,7 +52,7 @@ class SalesRepRepository
     public function findByLocalId(int $localId): ?object
     {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM sage_customer_categories WHERE local_id = ?"
+            "SELECT * FROM sage_sales_reps WHERE local_id = ? AND status = 'synced' ORDER BY id DESC LIMIT 1"
         );
         $stmt->execute([$localId]);
 

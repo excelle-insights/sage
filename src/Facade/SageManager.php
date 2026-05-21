@@ -120,8 +120,31 @@ class SageManager
         
     }
 
+    // public function getCustomer(int $localId): object
+    // {
+    //     $repo    = new CustomerRepository($this->pdo);
+    //     $client  = new CustomerClient(
+    //         $this->baseUrl,
+    //         $this->companyId,
+    //         $this->auth,
+    //         $this->http
+    //     );
+    //     $service = new CustomerSyncService(
+    //         $repo,
+    //         $client,
+    //         new CustomerCategoryRepository($this->pdo),
+    //         new SalesRepRepository($this->pdo)
+    //     );
+
+    //     return $service->getByLocalId($localId);
+    // }
+
     public function createCustomer(array $data): object
     {
+        $repo         = new CustomerRepository($this->pdo);
+        $categoryRepo = new CustomerCategoryRepository($this->pdo);
+        $salesRepRepo = new SalesRepRepository($this->pdo);
+
         $client = new CustomerClient(
             $this->baseUrl,
             $this->companyId,
@@ -129,8 +152,16 @@ class SageManager
             $this->http
         );
 
-        return $client->create($data);
+        $service = new CustomerSyncService(
+            $repo,
+            $client,
+            $categoryRepo,
+            $salesRepRepo
+        );
+
+        return $service->create($data);
     }
+
     /**
      * -------------------------
      * Sales Representative
