@@ -4,27 +4,21 @@ namespace ExcelleInsights\Sage\Repositories;
 
 use PDO;
 
-class CustomerRepository
+class CustomerCategoryRepository
 {
     public function __construct(private PDO $pdo) {}
 
     public function create(array $data): int
     {
         $stmt = $this->pdo->prepare(
-            "INSERT INTO sage_customers
-                (local_id, name, active,sage_category_id,sage_salesrep_id, email, mobile, telephone, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+            "INSERT INTO sage_customer_categories
+                (local_id, description, status)
+             VALUES (?, ?, 'pending')"
         );
 
         $stmt->execute([
             $data['local_id'],
-            $data['name'],
-            $data['active']             ?? true,
-            $data['sage_category_id']  ?? null,
-            $data['sage_salesrep_id'] ?? null,
-            $data['email']              ?? null,
-            $data['mobile']             ?? null,
-            $data['telephone']          ?? null,
+            $data['description'],
         ]);
 
         return (int) $this->pdo->lastInsertId();
@@ -33,7 +27,7 @@ class CustomerRepository
     public function findById(int $id): ?object
     {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM sage_customers WHERE id = ?"
+            "SELECT * FROM sage_customer_categories WHERE id = ?"
         );
         $stmt->execute([$id]);
 
@@ -43,7 +37,7 @@ class CustomerRepository
     public function findByLocalId(int $localId): ?object
     {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM sage_customers WHERE local_id = ?"
+            "SELECT * FROM sage_customer_categories WHERE local_id = ? AND status = 'synced' ORDER BY id DESC LIMIT 1"
         );
         $stmt->execute([$localId]);
 
@@ -53,7 +47,7 @@ class CustomerRepository
     public function findBySageId(int $sageId): ?object
     {
         $stmt = $this->pdo->prepare(
-            "SELECT * FROM sage_customers WHERE sage_id = ?"
+            "SELECT * FROM sage_customer_categories WHERE sage_id = ?"
         );
         $stmt->execute([$sageId]);
 
@@ -63,26 +57,27 @@ class CustomerRepository
     public function markSynced(int $localId, int $sageId): void
     {
         $stmt = $this->pdo->prepare(
-            "UPDATE sage_customers SET sage_id = ?, status = 'synced', error = NULL WHERE id = ?"
+            "UPDATE sage_customer_categories SET sage_id = ?, status = 'synced', error = NULL WHERE id = ?"
         );
         $stmt->execute([$sageId, $localId]);
     }
 
     public function markFailed(int $localId, string $error): void
     {
+        // $stmt = $this->pdo->prepare(
+        //     "UPDATE sage_customer_categories SET status = 'failed', error = ?, retry_count = retry_count + 1 WHERE id = ?"
+        // );
         $stmt = $this->pdo->prepare(
-            // "UPDATE sage_customers SET status = 'failed', error = ?, retry_count = retry_count + 1 WHERE id = ?"
-            "UPDATE sage_customers SET status = 'failed', error = ? WHERE id = ?"
-
+            "UPDATE sage_customer_categories SET status = 'failed', error = ? WHERE id = ?"
         );
         $stmt->execute([$error, $localId]);
     }
 
-    public function getPending(): array
-    {
-        $stmt = $this->pdo->query(
-            "SELECT * FROM sage_customers WHERE status IN ('pending', 'failed') AND retry_count < 5"
-        );
-        return $stmt->fetchAll(PDO::FETCH_OBJ);
-    }
+    // public function getPending(): array
+    // {
+    //     $stmt = $this->pdo->query(
+    //         "SELECT * FROM sage_customer_categories WHERE status IN ('pending', 'failed') AND retry_count < 5"
+    //     );
+    //     return $stmt->fetchAll(PDO::FETCH_OBJ);
+    // }
 }

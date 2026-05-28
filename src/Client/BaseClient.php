@@ -47,6 +47,10 @@ abstract class BaseClient
         $status = $response['status'] ?? 0;
         $body   = $response['body']   ?? null;
 
+
+        // add this debug line temporarily
+        fwrite(STDOUT, "\nRAW RESPONSE ({$status}): " . print_r($body, true) . "\n");
+
         if (is_string($body)) {
             $decoded = json_decode($body);
             if (json_last_error() !== JSON_ERROR_NONE) {
@@ -57,14 +61,41 @@ abstract class BaseClient
         } else {
             $decoded = $body;
         }
+        switch (true) {
+            // 200 OK, 201 Created, 202 Accepted
+            case $status >= 200 && $status < 300:
+                return is_object($decoded) ? $decoded : (object) $decoded;
 
-        if ($status >= 400) {
-            $message = is_object($decoded) && property_exists($decoded, 'Message')
-                ? $decoded->Message
-                : json_encode($decoded);
+                // 204 No Content — success, no body
+            case $status === 204:
+                return (object) [];
 
-            throw new RuntimeException("Sage API Error ({$status}): {$message}");
+                // 400 Bad Request — validation failed
+            case $status === 400:
+                $message = isset($decoded->Message)
+                    ? $decoded->Message
+                    : (is_string($body) ? $body : json_encode($decoded));
+                throw new RuntimeException("Bad Request (400): {$message}");
+
+                // 401 Unauthorized
+            case $status === 401:
+                throw new RuntimeException(
+                    "Unauthorized (401): Check your API key and credentials."
+                );
+
+            default:
+                $message = isset($decoded->Message)
+                    ? $decoded->Message
+                    : (is_string($body) ? $body : json_encode($decoded));
+                throw new RuntimeException("Sage API Error ({$status}): {$message}");
         }
+        // if ($status >= 400) {
+        //     $message = is_object($decoded) && property_exists($decoded, 'Message')
+        //         ? $decoded->Message
+        //         : json_encode($decoded);
+
+        //     throw new RuntimeException("Sage API Error ({$status}): {$message}");
+        // }
 
         return is_object($decoded) ? $decoded : (object) $decoded;
     }
