@@ -18,11 +18,11 @@ Create a .env file in your project root (or rely on the package .env):
 
 ```
 # Sage API
-QBO_BASE_URL=https://sage.api.intuit.com
-QBO_CLIENT_ID=YOUR_CLIENT_ID
-QBO_CLIENT_SECRET=YOUR_CLIENT_SECRET
-QBO_REALM_ID=YOUR_COMPANY_ID
-QBO_REDIRECT_URI=http://gimco.local/admin/debug_scripts/qbo-auth-callback.php
+SAGE_BASE_URL=https://sage.api.intuit.com
+SAGE_CLIENT_ID=YOUR_CLIENT_ID
+SAGE_CLIENT_SECRET=YOUR_CLIENT_SECRET
+SAGE_REALM_ID=YOUR_COMPANY_ID
+SAGE_REDIRECT_URI=http://gimco.local/admin/debug_scripts/qbo-auth-callback.php
 QBO_TABLE_PREFIX=qbo_beta
 
 # Database connection
@@ -31,6 +31,7 @@ DB_USER=root
 DB_PASSWORD=secret
 
 ```
+
 The package automatically loads its own .env if present.
 
 ## Running Migrations
@@ -46,13 +47,14 @@ php vendor/excelle-insights/sage/scripts/migrate.php
 Tables created include:
 
 - api_access_tokens
-- _companies
-- _customers
-- _invoices
-- _invoice_items
+- \_companies
+- \_customers
+- \_invoices
+- \_invoice_items
 - http_request_logs
 
 ## Quick Start
+
 1. Get the OAuth Authorization URL
 
 This script generates a link for the user to authorize your app in Sage:
@@ -172,6 +174,7 @@ if ($result->status === 'synced') {
 }
 
 ```
+
 ## Testing
 
 The package uses PHPUnit for testing. To run tests:
@@ -180,20 +183,20 @@ The package uses PHPUnit for testing. To run tests:
 vendor/bin/phpunit tests
 ```
 
-Ensure your .env (or package .env) is configured with valid database and  credentials.
+Ensure your .env (or package .env) is configured with valid database and credentials.
 
 ## Features
 
 - Automatic OAuth2 authentication with Sage Online.
-- Local persistence of customers in _customers table.
+- Local persistence of customers in \_customers table.
 - Queue system for failed Sage syncs.
 - Easy access to Sage API via SageManager.
-- Extensible for invoices, payments, and other  objects.
+- Extensible for invoices, payments, and other objects.
 
 ## Example Workflow
 
 - Initialize SageManager.
 - Redirect user to Sage authorization page using getAuthUrl().
 - Handle the callback via OAuthController.
-- Create customers locally and sync with  using createCustomer().
-- Create invoices locally and sync with  using createInvoice().
+- Create customers locally and sync with using createCustomer().
+- Create invoices locally and sync with using createInvoice().
