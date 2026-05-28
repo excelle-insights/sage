@@ -36,6 +36,7 @@ class CustomerClient extends BaseClient
                 : null,
             'SalesRepresentativeId' => $data['sage_salesrep_id'] ?? null,
             'Email'                 => $data['email']             ?? null,
+            'TaxReference'          => $data['pin']              ?? null,
             'Mobile'                => $data['mobile']            ?? null,
             'Telephone'             => $data['telephone']         ?? null,
         ], fn($v) => $v !== null);

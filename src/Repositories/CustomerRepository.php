@@ -12,7 +12,7 @@ class CustomerRepository
     {
         $stmt = $this->pdo->prepare(
             "INSERT INTO sage_customers
-                (local_id, name, active,sage_category_id,sage_salesrep_id, email, mobile, telephone, status)
+                (local_id, name, active,sage_category_id,sage_salesrep_id, email,pin,mobile, telephone, status)
              VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
         );
 
@@ -23,6 +23,7 @@ class CustomerRepository
             $data['sage_category_id']  ?? null,
             $data['sage_salesrep_id'] ?? null,
             $data['email']              ?? null,
+            $data['pin']              ?? null,
             $data['mobile']             ?? null,
             $data['telephone']          ?? null,
         ]);
