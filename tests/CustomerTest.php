@@ -118,4 +118,36 @@ class CustomerTest extends TestCase
     //     $this->assertEquals('synced', $result->status);
     //     $this->assertNotNull($result->sage_id);
     // }
+
+    /**
+     * Invoice Account
+     */
+
+
+    public function testCreateAccount(): void
+    {
+        $result = $this->manager->createAccount([
+            'local_id'    => 1,
+            'name'        => 'Disbursements',
+            'description' => 'Disbursements and related costs',
+            'category_id' => 2,   // Sales
+            'active'      => true,
+            'balance'     => 0.00,
+        ]);
+
+        fwrite(STDOUT, "\nAccount: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+        fwrite(STDOUT, "\nURL: " . $this->manager->getApiUrl('Account/Save') . "\n");
+
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
+
+    public function testGetAccount(): void
+    {
+        $result = $this->manager->getAccount(1);
+
+        fwrite(STDOUT, "\nAccount: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertNotNull($result);
+    }
 }
