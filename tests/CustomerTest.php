@@ -150,4 +150,40 @@ class CustomerTest extends TestCase
 
         $this->assertNotNull($result);
     }
+
+    public function testCreateTaxType(): void
+    {
+        $result = $this->manager->createTaxType([
+            'name'       => 'KRA VAT',
+            'percentage' => 0.16,
+            'active'     => true,
+        ]);
+
+        fwrite(STDOUT, "\nTaxType: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
+
+    public function testUpdateTaxType(): void
+    {
+        // WMS passes primary key — not sage_id
+        $result = $this->manager->updateTaxType(1, [
+            'name'       => 'KRA VAT',
+            'percentage' => 0.17,
+            'active'     => true,
+        ]);
+
+        fwrite(STDOUT, "\nUpdated: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertEquals('synced', $result->status);
+    }
+    // public function testSyncTaxTypes(): void
+    // {
+    //     $this->manager->syncTaxTypes();
+
+    //     fwrite(STDOUT, "\nTax types synced from Sage\n");
+
+    //     $this->assertTrue(true);
+    // }
 }
