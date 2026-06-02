@@ -19,6 +19,20 @@ use ExcelleInsights\Sage\Client\CustomerCategoryClient;
 use ExcelleInsights\Sage\Repositories\CustomerCategoryRepository;
 use ExcelleInsights\Sage\Services\CustomerCategorySyncService;
 
+use ExcelleInsights\Sage\Client\AccountClient;
+use ExcelleInsights\Sage\Repositories\AccountRepository;
+use ExcelleInsights\Sage\Services\AccountSyncService;
+
+use ExcelleInsights\Sage\Client\TaxTypeClient;
+use ExcelleInsights\Sage\Repositories\TaxTypeRepository;
+use ExcelleInsights\Sage\Services\TaxTypeSyncService;
+
+use ExcelleInsights\Sage\Client\TaxInvoiceClient;
+use ExcelleInsights\Sage\Repositories\TaxInvoiceRepository;
+use ExcelleInsights\Sage\Repositories\TaxInvoiceItemsRepository;
+use ExcelleInsights\Sage\Services\TaxInvoiceSyncService;
+
+
 use ExcelleInsights\Sage\Client\InvoiceClient;
 use ExcelleInsights\Sage\Client\PaymentClient;
 use ExcelleInsights\Sage\Repositories\TokenRepository;
@@ -229,27 +243,160 @@ class SageManager
         return $service->getByLocalId($localId);
     }
 
-    // public function createCustomer(array $data): object
-    // {
-    //     $repo = new CustomerRepository($this->pdo);
-
-    //     $client = new CustomerClient(
-    //         $this->baseUrl,
-    //         $this->companyId,
-    //         $this->auth,
-    //         $this->http
-    //     );
-
-    //     $service = new CustomerSyncService($repo, $client);
-
-    //     return $service->create($data);
-    // }
 
     /**
      * -------------------------
      * Invoices
      * -------------------------
      */
+
+    public function createAccount(array $data): object
+    {
+        $repo    = new AccountRepository($this->pdo);
+        $client  = new AccountClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new AccountSyncService($repo, $client);
+
+        return $service->create($data);
+    }
+
+    public function getAccount(int $localId): object
+    {
+        $repo    = new AccountRepository($this->pdo);
+        $client  = new AccountClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new AccountSyncService($repo, $client);
+
+        return $service->getByLocalId($localId);
+    }
+
+    /**
+     * Pull all tax types from Sage and cache locally
+     * Run this once during setup
+     */
+    // public function syncTaxTypes(): void
+    // {
+    //     $repo   = new TaxTypeRepository($this->pdo);
+    //     $client = new TaxTypeClient(
+    //         $this->baseUrl,
+    //         $this->companyId,
+    //         $this->auth,
+    //         $this->http
+    //     );
+
+    //     $result = $client->getAll();
+
+    //     foreach ($result->Results ?? $result as $taxType) {
+    //         $repo->create([
+    //             'sage_id'    => $taxType->ID,
+    //             'name'       => $taxType->Name,
+    //             'percentage' => $taxType->Percentage,
+    //             'active'     => $taxType->Active ?? true,
+    //         ]);
+    //     }
+    // }
+
+    public function createTaxType(array $data): object
+    {
+        $repo   = new TaxTypeRepository($this->pdo);
+        $client = new TaxTypeClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+
+        $result = $client->create($data);
+
+        $repo->create([
+            'sage_id'    => $result->ID,
+            'name'       => $result->Name,
+            'percentage' => $result->Percentage,
+            'active'     => $result->Active ?? true,
+        ]);
+
+        return (object) [
+            'status'  => 'synced',
+            'sage_id' => $result->ID,
+            'data'    => $result,
+        ];
+    }
+    public function updateTaxType(int $id, array $data): object
+    {
+        $repo    = new TaxTypeRepository($this->pdo);
+        $client  = new TaxTypeClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new TaxTypeSyncService($repo, $client);
+
+        return $service->update($id, $data);
+    }
+
+
+    public function createTaxInvoice(array $data): object
+    {
+        $service = new TaxInvoiceSyncService(
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceItemsRepository($this->pdo),
+            new TaxInvoiceClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new SalesRepRepository($this->pdo)
+        );
+
+        return $service->create($data);
+    }
+
+    public function getTaxInvoice(int $localId): object
+    {
+        $service = new TaxInvoiceSyncService(
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceItemsRepository($this->pdo),
+            new TaxInvoiceClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new SalesRepRepository($this->pdo)
+        );
+
+        return $service->getByLocalId($localId);
+    }
+
+    public function exportTaxInvoicePdf(int $localId): string
+    {
+        $service = new TaxInvoiceSyncService(
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceItemsRepository($this->pdo),
+            new TaxInvoiceClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new SalesRepRepository($this->pdo)
+        );
+
+        return $service->exportPdf($localId);
+    }
     // public function createInvoice(array $data): object
     // {
     //     if (empty($data['qbo_company_id'])) {
