@@ -27,6 +27,12 @@ use ExcelleInsights\Sage\Client\TaxTypeClient;
 use ExcelleInsights\Sage\Repositories\TaxTypeRepository;
 use ExcelleInsights\Sage\Services\TaxTypeSyncService;
 
+use ExcelleInsights\Sage\Client\TaxInvoiceClient;
+use ExcelleInsights\Sage\Repositories\TaxInvoiceRepository;
+use ExcelleInsights\Sage\Repositories\TaxInvoiceItemsRepository;
+use ExcelleInsights\Sage\Services\TaxInvoiceSyncService;
+
+
 use ExcelleInsights\Sage\Client\InvoiceClient;
 use ExcelleInsights\Sage\Client\PaymentClient;
 use ExcelleInsights\Sage\Repositories\TokenRepository;
@@ -335,6 +341,61 @@ class SageManager
         $service = new TaxTypeSyncService($repo, $client);
 
         return $service->update($id, $data);
+    }
+
+
+    public function createTaxInvoice(array $data): object
+    {
+        $service = new TaxInvoiceSyncService(
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceItemsRepository($this->pdo),
+            new TaxInvoiceClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new SalesRepRepository($this->pdo)
+        );
+
+        return $service->create($data);
+    }
+
+    public function getTaxInvoice(int $localId): object
+    {
+        $service = new TaxInvoiceSyncService(
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceItemsRepository($this->pdo),
+            new TaxInvoiceClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new SalesRepRepository($this->pdo)
+        );
+
+        return $service->getByLocalId($localId);
+    }
+
+    public function exportTaxInvoicePdf(int $localId): string
+    {
+        $service = new TaxInvoiceSyncService(
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceItemsRepository($this->pdo),
+            new TaxInvoiceClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new SalesRepRepository($this->pdo)
+        );
+
+        return $service->exportPdf($localId);
     }
     // public function createInvoice(array $data): object
     // {

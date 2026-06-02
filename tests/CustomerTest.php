@@ -178,6 +178,46 @@ class CustomerTest extends TestCase
 
         $this->assertEquals('synced', $result->status);
     }
+
+    public function testCreateTaxInvoice(): void
+    {
+        $result = $this->manager->createTaxInvoice([
+            'local_id'           => 1,
+            'customer_local_id'  => 2,       // resolves to sage_customer_id
+            'sales_rep_local_id' => 2,       // resolves to sage_salesrep_id
+            'date'               => '2026-05-28',
+            'due_date'           => '2026-06-28',
+            'customer_reference' => '84-01-26',
+            'lines'              => [
+                [
+                    'line_type'    => 1,         // Account
+                    'selection_id' => 641693,         // replace from sage_invoice_accounts
+                    'description'  => 'Disbursements',
+                    'tax_type_id'  => 148779,         // replace with sage tax type id
+                    'quantity'     => 1,
+                    'unit_price'   => 120000.00,
+                    'discount'     => 0,
+                ]
+            ],
+        ]);
+
+        fwrite(STDOUT, "\nTaxInvoice: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
+
+    public function testExportTaxInvoicePdf(): void
+    {
+        $pdf = $this->manager->exportTaxInvoicePdf(1);
+
+        $this->assertNotEmpty($pdf);
+
+        // save to file so you can open and verify
+        file_put_contents('/tmp/tax_invoice.pdf', $pdf);
+        fwrite(STDOUT, "\nPDF saved to /tmp/tax_invoice.pdf\n");
+    }
+
     // public function testSyncTaxTypes(): void
     // {
     //     $this->manager->syncTaxTypes();
