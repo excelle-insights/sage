@@ -65,9 +65,10 @@ class CustomerTest extends TestCase
     public function testCreateCustomer(): void
     {
         $result = $this->manager->createCustomer([
-            'local_id'           => 2,
-            'name'               => 'Akinyi Customer',
-            'email'               => 'Akinyi@gmail.com',
+            'local_id'           => 3,
+            'name'               => 'John Doe',
+            'email'               => 'jdoe@gmail.com',
+            'pin'                 => 'A123456789B',
             'mobile'               => '0700453259',
             'active'             => true,
             'category_local_id'  => 1,  // must already be synced
@@ -248,6 +249,26 @@ class CustomerTest extends TestCase
         fwrite(STDOUT, "\nBankAccount: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
 
         $this->assertNotNull($result);
+    }
+
+    public function testCreateCustomerReceipt(): void
+    {
+        $result = $this->manager->createCustomerReceipt([
+            'customer_local_id'  => 2,           // resolves to sage_customer_id
+            'invoice_local_id'   => 1,           // resolves to sage_invoice_id + invoice_id FK
+            'bank_account_id'    => 2398,      // Sage bank account ID (from testCreateBankAccount result->sage_id)
+            'date'               => '2026-06-02',
+            'total'              => 120000.00,   // matches invoice unit_price
+            'reference'          => '84-01-26',
+            'description'        => 'Payment for INV-001',
+            'payment_method'     => 'Cash',
+            'reconciled'         => false,
+        ]);
+
+        fwrite(STDOUT, "\nReceipt: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
     }
     // public function testSyncTaxTypes(): void
     // {

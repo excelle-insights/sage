@@ -29,7 +29,7 @@ class TaxInvoiceRepository
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function find(int $id): ?object
+    public function findById(int $id): ?object
     {
         $stmt = $this->pdo->prepare(
             "SELECT * FROM sage_tax_invoice WHERE id = ?"

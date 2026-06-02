@@ -36,6 +36,10 @@ use ExcelleInsights\Sage\Client\BankAccountClient;
 use ExcelleInsights\Sage\Repositories\BankAccountRepository;
 use ExcelleInsights\Sage\Services\BankAccountSyncService;
 
+use ExcelleInsights\Sage\Client\CustomerReceiptClient;
+use ExcelleInsights\Sage\Repositories\CustomerReceiptRepository;
+use ExcelleInsights\Sage\Services\CustomerReceiptSyncService;
+
 
 use ExcelleInsights\Sage\Client\InvoiceClient;
 use ExcelleInsights\Sage\Client\PaymentClient;
@@ -463,6 +467,39 @@ class SageManager
         $service = new BankAccountSyncService($repo, $client);
 
         return $service->getByLocalId($localId);
+    }
+    public function createCustomerReceipt(array $data): object
+    {
+        $service = new CustomerReceiptSyncService(
+            new CustomerReceiptRepository($this->pdo),
+            new CustomerReceiptClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new TaxInvoiceRepository($this->pdo)
+        );
+
+        return $service->create($data);
+    }
+
+    public function getCustomerReceiptByInvoice(int $invoiceId): object
+    {
+        $service = new CustomerReceiptSyncService(
+            new CustomerReceiptRepository($this->pdo),
+            new CustomerReceiptClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new TaxInvoiceRepository($this->pdo)
+        );
+
+        return $service->getByInvoiceId($invoiceId);
     }
     // public function createPayment(array $data): object
     // {

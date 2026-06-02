@@ -24,10 +24,13 @@ class StaticAuth
     {
         $baseUrl = $_ENV['SAGE_BASE_URL'] ?? '';
         $companyId = $_ENV['SAGE_COMPANY_ID'] ?? '';
+        $separator = str_contains($endpoint, '?') ? '&' : '?';
 
         return rtrim($baseUrl, '/') . '/' . ltrim($endpoint, '/')
-            . '?APIKey='    . $this->apiKey
-            . '&companyid=' . $companyId;    }
+            . $separator . 'APIKey=' . $this->apiKey
+            . '&companyid=' . $companyId;
+
+         }
 
     public function getAuthHeader(): string
     {
