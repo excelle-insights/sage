@@ -13,7 +13,7 @@ class CustomerRepository
         $stmt = $this->pdo->prepare(
             "INSERT INTO sage_customers
                 (local_id, name, active,sage_category_id,sage_salesrep_id, email,pin,mobile, telephone, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?,'pending')"
         );
 
         $stmt->execute([
