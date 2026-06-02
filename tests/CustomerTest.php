@@ -218,6 +218,37 @@ class CustomerTest extends TestCase
         fwrite(STDOUT, "\nPDF saved to /tmp/tax_invoice.pdf\n");
     }
 
+    public function testCreateBankAccount(): void
+    {
+        $result = $this->manager->createBankAccount([
+            'local_id'        => 1,
+            'account_name'    => 'EQUITY',
+            'bank_name'       => 'EQUITY Bank',
+            'account_number'  => '1234567890',
+            'branch_name'     => 'Nairobi',
+            'branch_code'     => '01',
+            'description'     => 'EQUITY Bank Account',
+            'payment_method'  => 'Cash',
+            'opening_balance' => 0.00,
+            'active'          => true,
+            'is_default'      => false,
+        ]);
+
+
+        fwrite(STDOUT, "\nBankAccount: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
+
+    public function testGetBankAccount(): void
+    {
+        $result = $this->manager->getBankAccount(1);
+
+        fwrite(STDOUT, "\nBankAccount: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+
+        $this->assertNotNull($result);
+    }
     // public function testSyncTaxTypes(): void
     // {
     //     $this->manager->syncTaxTypes();

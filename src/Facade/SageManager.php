@@ -32,6 +32,10 @@ use ExcelleInsights\Sage\Repositories\TaxInvoiceRepository;
 use ExcelleInsights\Sage\Repositories\TaxInvoiceItemsRepository;
 use ExcelleInsights\Sage\Services\TaxInvoiceSyncService;
 
+use ExcelleInsights\Sage\Client\BankAccountClient;
+use ExcelleInsights\Sage\Repositories\BankAccountRepository;
+use ExcelleInsights\Sage\Services\BankAccountSyncService;
+
 
 use ExcelleInsights\Sage\Client\InvoiceClient;
 use ExcelleInsights\Sage\Client\PaymentClient;
@@ -397,6 +401,7 @@ class SageManager
 
         return $service->exportPdf($localId);
     }
+
     // public function createInvoice(array $data): object
     // {
     //     if (empty($data['qbo_company_id'])) {
@@ -431,6 +436,34 @@ class SageManager
      * Payments
      * -------------------------
      */
+
+    public function createBankAccount(array $data): object
+    {
+        $repo    = new BankAccountRepository($this->pdo);
+        $client  = new BankAccountClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new BankAccountSyncService($repo, $client);
+
+        return $service->create($data);
+    }
+
+    public function getBankAccount(int $localId): object
+    {
+        $repo    = new BankAccountRepository($this->pdo);
+        $client  = new BankAccountClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new BankAccountSyncService($repo, $client);
+
+        return $service->getByLocalId($localId);
+    }
     // public function createPayment(array $data): object
     // {
     //     if (empty($data['qbo_company_id'])) {
