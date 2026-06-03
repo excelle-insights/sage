@@ -183,20 +183,20 @@ class CustomerTest extends TestCase
     public function testCreateTaxInvoice(): void
     {
         $result = $this->manager->createTaxInvoice([
-            'local_id'           => 1,
-            'customer_local_id'  => 2,       // resolves to sage_customer_id
+            'local_id'           => 2,
+            'customer_local_id'  => 3,       // resolves to sage_customer_id
             'sales_rep_local_id' => 2,       // resolves to sage_salesrep_id
             'date'               => '2026-05-28',
             'due_date'           => '2026-06-28',
-            'customer_reference' => '84-01-26',
+            'customer_reference' => '84-02-26',
             'lines'              => [
                 [
                     'line_type'    => 1,         // Account
                     'selection_id' => 641693,         // replace from sage_invoice_accounts
                     'description'  => 'Disbursements',
-                    'tax_type_id'  => 148779,         // replace with sage tax type id
+                    'tax_type_id'  => 148814,         // replace with sage tax type id
                     'quantity'     => 1,
-                    'unit_price'   => 120000.00,
+                    'unit_price'   => 150000.00,
                     'discount'     => 0,
                 ]
             ],
@@ -251,15 +251,16 @@ class CustomerTest extends TestCase
         $this->assertNotNull($result);
     }
 
+
     public function testCreateCustomerReceipt(): void
     {
         $result = $this->manager->createCustomerReceipt([
-            'customer_local_id'  => 2,           // resolves to sage_customer_id
-            'invoice_local_id'   => 1,           // resolves to sage_invoice_id + invoice_id FK
+            'customer_local_id'  => 3,           // resolves to sage_customer_id
+            'invoice_local_id'   => 2,           // resolves to sage_invoice_id + invoice_id FK
             'bank_account_id'    => 2398,      // Sage bank account ID (from testCreateBankAccount result->sage_id)
             'date'               => '2026-06-02',
-            'total'              => 120000.00,   // matches invoice unit_price
-            'reference'          => '84-01-26',
+            'total'              => 150000.00,   // matches invoice unit_price
+            'reference'          => '84-02-26',
             'description'        => 'Payment for INV-001',
             'payment_method'     => 'Cash',
             'reconciled'         => false,

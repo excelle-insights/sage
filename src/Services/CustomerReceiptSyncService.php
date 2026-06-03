@@ -6,6 +6,10 @@ use ExcelleInsights\Sage\Client\CustomerReceiptClient;
 use ExcelleInsights\Sage\Repositories\CustomerReceiptRepository;
 use ExcelleInsights\Sage\Repositories\CustomerRepository;
 use ExcelleInsights\Sage\Repositories\TaxInvoiceRepository;
+use ExcelleInsights\Sage\Client\TaxInvoiceClient;
+use ExcelleInsights\Sage\Client\AllocationClient;
+
+
 
 class CustomerReceiptSyncService
 {
@@ -13,7 +17,10 @@ class CustomerReceiptSyncService
         private CustomerReceiptRepository $repo,
         private CustomerReceiptClient     $client,
         private CustomerRepository        $customerRepo,
-        private TaxInvoiceRepository      $invoiceRepo
+        private TaxInvoiceRepository      $invoiceRepo,
+        private TaxInvoiceClient          $invoiceClient,
+        private AllocationClient          $allocationClient
+
     ) {}
 
     public function create(array $data): object
@@ -52,6 +59,32 @@ class CustomerReceiptSyncService
         try {
             $result = $this->client->create($data);
             $this->repo->markSynced($receiptId, $result->ID);     // was $localId
+
+            // 6. allocate receipt to invoice in Sage
+
+            if (!empty($data['sage_invoice_id'])) {
+                $this->allocationClient->allocate([
+                    'receipt_sage_id' => $result->ID,
+                    'invoice_sage_id' => $data['sage_invoice_id'],
+                    'total'           => $data['total'],
+                    'discount'        => $data['discount'] ?? 0,
+                ]);
+            }
+
+            // 7. verify invoice paid status from Sage
+            if (!empty($data['invoice_id']) && !empty($data['sage_invoice_id'])) {
+                $sageInvoice = $this->invoiceClient->getById(
+                    (int) $data['sage_invoice_id']
+                );
+                $sageStatus = $sageInvoice->Status ?? 'unknown';
+
+                fwrite(STDOUT, "\nSage invoice status: {$sageStatus}\n");
+
+                $this->invoiceRepo->markPaidStatus(
+                    (int) $data['invoice_id'],
+                    strtolower($sageStatus) === 'paid' ? 'paid' : 'unpaid'
+                );
+            }
 
             return (object) [
                 'status'   => 'synced',

@@ -39,6 +39,8 @@ use ExcelleInsights\Sage\Services\BankAccountSyncService;
 use ExcelleInsights\Sage\Client\CustomerReceiptClient;
 use ExcelleInsights\Sage\Repositories\CustomerReceiptRepository;
 use ExcelleInsights\Sage\Services\CustomerReceiptSyncService;
+use ExcelleInsights\Sage\Client\AllocationClient;
+
 
 
 use ExcelleInsights\Sage\Client\InvoiceClient;
@@ -479,12 +481,23 @@ class SageManager
                 $this->http
             ),
             new CustomerRepository($this->pdo),
-            new TaxInvoiceRepository($this->pdo)
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceClient(          
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new AllocationClient(         
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            )
         );
 
         return $service->create($data);
     }
-
     public function getCustomerReceiptByInvoice(int $invoiceId): object
     {
         $service = new CustomerReceiptSyncService(
@@ -496,7 +509,19 @@ class SageManager
                 $this->http
             ),
             new CustomerRepository($this->pdo),
-            new TaxInvoiceRepository($this->pdo)
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceClient(         
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new AllocationClient(   
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            )
         );
 
         return $service->getByInvoiceId($invoiceId);

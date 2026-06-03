@@ -35,7 +35,8 @@ class TaxInvoiceClient extends BaseClient
             'SalesRepresentativeId'  => $data['sage_salesrep_id'] ?? null,
             'Date'                   => $data['date'],
             'DueDate'                => $data['due_date']          ?? null,
-            'CustomerReference'      => $data['customer_reference'] ?? null,
+            'Reference'              => $data['customer_reference'] ?? null,
+            'TaxReference'           => $data['tax_reference']      ?? null,
             'Lines'                  => $lines,
         ], fn($v) => $v !== null);
 
