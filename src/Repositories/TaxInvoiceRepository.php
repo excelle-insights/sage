@@ -12,8 +12,8 @@ class TaxInvoiceRepository
     {
         $stmt = $this->pdo->prepare(
             "INSERT INTO sage_tax_invoice
-                (local_id, sage_customer_id, sage_salesrep_id, date, due_date, customer_reference, inclusive, status)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')"
+                (local_id, sage_customer_id, sage_salesrep_id, date, due_date, customer_reference, inclusive, tax_reference, status)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
         );
 
         $stmt->execute([
@@ -24,12 +24,13 @@ class TaxInvoiceRepository
             $data['due_date']           ?? null,
             $data['customer_reference'] ?? null,
             $data['inclusive']          ? 1 : 0,
+            $data['tax_reference']      ?? null,
         ]);
 
         return (int) $this->pdo->lastInsertId();
     }
 
-    public function find(int $id): ?object
+    public function findById(int $id): ?object
     {
         $stmt = $this->pdo->prepare(
             "SELECT * FROM sage_tax_invoice WHERE id = ?"
@@ -73,5 +74,13 @@ class TaxInvoiceRepository
             "UPDATE sage_tax_invoice SET status = 'failed', error = ?, retry_count = retry_count + 1 WHERE id = ?"
         );
         $stmt->execute([$error, $localId]);
+    }
+
+    public function markPaidStatus(int $id, string $status = 'paid'): void
+    {
+        $stmt = $this->pdo->prepare(
+            "UPDATE sage_tax_invoice SET paid_status = ? WHERE id = ?"
+        );
+        $stmt->execute([$status, $id]);
     }
 }

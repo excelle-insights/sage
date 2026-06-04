@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 use Phinx\Migration\AbstractMigration;
 
-final class V20260602051109 extends AbstractMigration
+final class AddPaidStatusToSageTaxInvoice extends AbstractMigration
 {
     /**
      * Change Method.
@@ -19,6 +19,14 @@ final class V20260602051109 extends AbstractMigration
      */
     public function change(): void
     {
-
+        $this->table('sage_tax_invoice')
+            ->addColumn('paid_status', 'string', [
+                'limit'   => 100,
+                'default' => 'unpaid',
+                'null'    => false,
+                'after'   => 'status',
+                'comment' => 'unpaid|paid',
+            ])
+            ->update();
     }
 }

@@ -32,6 +32,7 @@ class TaxInvoiceSyncService
                 );
             }
             $data['sage_customer_id'] = (int) $customer->sage_id;
+            $data['tax_reference']    = $customer->pin ?? null;
         }
 
         // 2. resolve sales rep local_id → sage_id
