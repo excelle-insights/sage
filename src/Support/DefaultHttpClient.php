@@ -1,10 +1,10 @@
 <?php
 
-namespace ExcelleInsights\QuickBooks\Support;
+namespace ExcelleInsights\Sage\Support;
 
 use PDO;
-use ExcelleInsights\QuickBooks\Contracts\HttpClientInterface;
-use ExcelleInsights\QuickBooks\Contracts\LoggerInterface;
+use ExcelleInsights\Sage\Contracts\HttpClientInterface;
+use ExcelleInsights\Sage\Contracts\LoggerInterface;
 
 class DefaultHttpClient implements HttpClientInterface
 {
