@@ -101,7 +101,6 @@ class SageManager
         $this->http = $http;
 
         $this->auth = new StaticAuth();
-
     }
 
     public function getApiUrl(string $endpoint): string
@@ -141,7 +140,6 @@ class SageManager
         );
 
         return $client->getById($id);
-        
     }
 
     // public function getCustomer(int $localId): object
@@ -482,13 +480,13 @@ class SageManager
             ),
             new CustomerRepository($this->pdo),
             new TaxInvoiceRepository($this->pdo),
-            new TaxInvoiceClient(          
+            new TaxInvoiceClient(
                 $this->baseUrl,
                 $this->companyId,
                 $this->auth,
                 $this->http
             ),
-            new AllocationClient(         
+            new AllocationClient(
                 $this->baseUrl,
                 $this->companyId,
                 $this->auth,
@@ -510,13 +508,13 @@ class SageManager
             ),
             new CustomerRepository($this->pdo),
             new TaxInvoiceRepository($this->pdo),
-            new TaxInvoiceClient(         
+            new TaxInvoiceClient(
                 $this->baseUrl,
                 $this->companyId,
                 $this->auth,
                 $this->http
             ),
-            new AllocationClient(   
+            new AllocationClient(
                 $this->baseUrl,
                 $this->companyId,
                 $this->auth,

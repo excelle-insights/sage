@@ -54,8 +54,11 @@ class SalesRepSyncService
         }
 
         // if synced, fetch fresh from Sage using sage_id
-        if ($local['status'] === 'synced' && $local['sage_id']) {
-            return $this->client->getById((int) $local['sage_id']);
+        // if ($local['status'] === 'synced' && $local['sage_id']) {
+        //     return $this->client->getById((int) $local['sage_id']);
+        // }
+        if ($local->status === 'synced' && $local->sage_id) {
+            return $this->client->getById((int) $local->sage_id);
         }
 
         // not yet synced — return local data
