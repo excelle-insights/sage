@@ -1,5 +1,4 @@
 <?php
-
 namespace ExcelleInsights\Sage\Tests;
 
 use PHPUnit\Framework\TestCase;
@@ -17,7 +16,7 @@ class CustomerTest extends TestCase
     }
 
     // Connection
-    /*
+    
 
     public function testFetchCompany(): void
     {
@@ -45,34 +44,33 @@ class CustomerTest extends TestCase
 
         $this->assertEquals(200, $status);
     }
-     */
 
     // Customers
-    // public function testGetAllCustomers(): void
-    // {
-    //     $result = $this->manager->getCustomers();
-    //     fwrite(STDOUT, "\nAll Customers: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
-    //     $this->assertNotNull($result);
-    // }
+    public function testGetAllCustomers(): void
+    {
+        $result = $this->manager->getCustomers();
+        fwrite(STDOUT, "\nAll Customers: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+        $this->assertNotNull($result);
+    }
 
-    // public function testGetCustomerById(): void
-    // {
-    //     $result = $this->manager->getCustomer('861999');
-    //     fwrite(STDOUT, "\nCustomer: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
-    //     $this->assertNotNull($result);
-    // }
+    public function testGetCustomerById(): void
+    {
+        $result = $this->manager->getCustomer('861999');
+        fwrite(STDOUT, "\nCustomer: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+        $this->assertNotNull($result);
+    }
 
     public function testCreateCustomer(): void
     {
         $result = $this->manager->createCustomer([
-            'local_id'           => 3,
+            'local_id'           => 1,
             'name'               => 'John Doe',
             'email'               => 'jdoe@gmail.com',
             'pin'                 => 'A123456789B',
             'mobile'               => '0700453259',
             'active'             => true,
             'category_local_id'  => 1,  // must already be synced
-            'sales_rep_local_id' => 2,  // must already be synced
+            'sales_rep_local_id' => 1,  // must already be synced
         ]);
 
         fwrite(STDOUT, "\nCustomer: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
@@ -89,7 +87,7 @@ class CustomerTest extends TestCase
     public function testCreateSalesRep(): void
     {
         $result = $this->manager->createSalesRep([
-            'local_id' => 2,
+            'local_id' => 1,
             'first_name' => 'Jane',
             'last_name'  => 'Doe',
             'active'     => true,
@@ -107,18 +105,18 @@ class CustomerTest extends TestCase
      * Customer Category
      */
 
-    // public function testCreateCustomerCategory(): void
-    // {
-    //     $result = $this->manager->createCustomerCategory([
-    //         'local_id'    => 1,
-    //         'description' => 'Equity',
-    //     ]);
+    public function testCreateCustomerCategory(): void
+    {
+        $result = $this->manager->createCustomerCategory([
+            'local_id'    => 1,
+            'description' => 'Equity',
+        ]);
 
-    //     fwrite(STDOUT, "\nCategory: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
+        fwrite(STDOUT, "\nCategory: " . json_encode($result, JSON_PRETTY_PRINT) . "\n");
 
-    //     $this->assertEquals('synced', $result->status);
-    //     $this->assertNotNull($result->sage_id);
-    // }
+        $this->assertEquals('synced', $result->status);
+        $this->assertNotNull($result->sage_id);
+    }
 
     /**
      * Invoice Account
@@ -184,17 +182,17 @@ class CustomerTest extends TestCase
     {
         $result = $this->manager->createTaxInvoice([
             'local_id'           => 2,
-            'customer_local_id'  => 3,       // resolves to sage_customer_id
-            'sales_rep_local_id' => 2,       // resolves to sage_salesrep_id
+            'customer_local_id'  => 1,       // resolves to sage_customer_id
+            'sales_rep_local_id' => 1,       // resolves to sage_salesrep_id
             'date'               => '2026-05-28',
             'due_date'           => '2026-06-28',
             'customer_reference' => '84-02-26',
             'lines'              => [
                 [
                     'line_type'    => 1,         // Account
-                    'selection_id' => 641693,         // replace from sage_invoice_accounts
+                    'selection_id' => 643509,         // replace from sage_invoice_accounts
                     'description'  => 'Disbursements',
-                    'tax_type_id'  => 148814,         // replace with sage tax type id
+                    'tax_type_id'  => 149296,         // replace with sage tax type id
                     'quantity'     => 1,
                     'unit_price'   => 150000.00,
                     'discount'     => 0,
@@ -255,9 +253,9 @@ class CustomerTest extends TestCase
     public function testCreateCustomerReceipt(): void
     {
         $result = $this->manager->createCustomerReceipt([
-            'customer_local_id'  => 3,           // resolves to sage_customer_id
-            'invoice_local_id'   => 2,           // resolves to sage_invoice_id + invoice_id FK
-            'bank_account_id'    => 2398,      // Sage bank account ID (from testCreateBankAccount result->sage_id)
+            'customer_local_id'  => 1,           // resolves to sage_customer_id
+            'invoice_local_id'   => 6,           // resolves to sage_invoice_id + invoice_id FK
+            'bank_account_id'    => 2406,      // Sage bank account ID (from testCreateBankAccount result->sage_id)
             'date'               => '2026-06-02',
             'total'              => 150000.00,   // matches invoice unit_price
             'reference'          => '84-02-26',
