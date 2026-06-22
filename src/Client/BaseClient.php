@@ -49,9 +49,9 @@ abstract class BaseClient
 
 
         // add this debug line temporarily
-        fwrite(STDOUT, "\nRAW RESPONSE ({$status}): " . print_r($body, true) . "\n");
-        fwrite(STDOUT, "\n>>> REQUEST URL: {$url}\n");
-        fwrite(STDOUT, ">>> REQUEST BODY: " . json_encode($data) . "\n");
+        // fwrite(STDOUT, "\nRAW RESPONSE ({$status}): " . print_r($body, true) . "\n");
+        // fwrite(STDOUT, "\n>>> REQUEST URL: {$url}\n");
+        // fwrite(STDOUT, ">>> REQUEST BODY: " . json_encode($data) . "\n");
 
 
         if (is_string($body)) {
