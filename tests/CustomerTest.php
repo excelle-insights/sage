@@ -126,9 +126,9 @@ class CustomerTest extends TestCase
     public function testCreateAccount(): void
     {
         $result = $this->manager->createAccount([
-            'local_id'    => 1,
-            'name'        => 'Disbursements',
-            'description' => 'Disbursements and related costs',
+            'local_id'    => 2,
+            'name'        => 'LegalFees',
+            'description' => 'legal fees account',
             'category_id' => 2,   // Sales
             'active'      => true,
             'balance'     => 0.00,
