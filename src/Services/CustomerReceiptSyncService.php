@@ -78,7 +78,7 @@ class CustomerReceiptSyncService
                 );
                 $sageStatus = $sageInvoice->Status ?? 'unknown';
 
-                fwrite(STDOUT, "\nSage invoice status: {$sageStatus}\n");
+                // fwrite(STDOUT, "\nSage invoice status: {$sageStatus}\n");
 
                 $this->invoiceRepo->markPaidStatus(
                     (int) $data['invoice_id'],
