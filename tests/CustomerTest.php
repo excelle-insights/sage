@@ -255,7 +255,7 @@ class CustomerTest extends TestCase
         $result = $this->manager->createCustomerReceipt([
             'customer_local_id'  => 1,           // resolves to sage_customer_id
             'invoice_local_id'   => 6,           // resolves to sage_invoice_id + invoice_id FK
-            'bank_account_id'    => 2406,      // Sage bank account ID (from testCreateBankAccount result->sage_id)
+            'bank_account_id'    => 1,      // Sage bank account ID (from testCreateBankAccount result->sage_id)
             'date'               => '2026-06-02',
             'total'              => 150000.00,   // matches invoice unit_price
             'reference'          => '84-02-26',
