@@ -12,10 +12,12 @@ class CustomerReceiptRepository
     {
         $stmt = $this->pdo->prepare(
             "INSERT INTO sage_customer_receipts
-    (invoice_id, sage_customer_id, sage_invoice_id, bank_account_id, date, total, reference, description, comments, payment_method, reconciled, status)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"  );
+            (local_id, invoice_id, sage_customer_id, sage_invoice_id, bank_account_id, date, total, reference, description, comments, payment_method, reconciled, status)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending')"
+        );
 
         $stmt->execute([
+            $data['local_id']         ?? null,
             $data['invoice_id'],
             $data['sage_customer_id'] ?? null,
             $data['sage_invoice_id']  ?? null,
@@ -67,5 +69,14 @@ class CustomerReceiptRepository
             "UPDATE sage_customer_receipts SET status = 'failed', error = ?, retry_count = retry_count + 1 WHERE id = ?"
         );
         $stmt->execute([$error, $id]);
+    }
+    public function findByLocalId(int $localId): ?object
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT * FROM sage_customer_receipts WHERE local_id = ? AND status = 'synced' ORDER BY id DESC LIMIT 1"
+        );
+        $stmt->execute([$localId]);
+
+        return $stmt->fetch(PDO::FETCH_OBJ) ?: null;
     }
 }

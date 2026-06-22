@@ -491,10 +491,41 @@ class SageManager
                 $this->companyId,
                 $this->auth,
                 $this->http
-            )
+            ),
+            new BankAccountRepository($this->pdo)
         );
 
         return $service->create($data);
+    }
+
+    public function getCustomerReceipt(int $localId): object
+    {
+        $service = new CustomerReceiptSyncService(
+            new CustomerReceiptRepository($this->pdo),
+            new CustomerReceiptClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new CustomerRepository($this->pdo),
+            new TaxInvoiceRepository($this->pdo),
+            new TaxInvoiceClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new AllocationClient(
+                $this->baseUrl,
+                $this->companyId,
+                $this->auth,
+                $this->http
+            ),
+            new BankAccountRepository($this->pdo)
+        );
+
+        return $service->getByLocalId($localId);
     }
     public function getCustomerReceiptByInvoice(int $invoiceId): object
     {
@@ -519,7 +550,8 @@ class SageManager
                 $this->companyId,
                 $this->auth,
                 $this->http
-            )
+            ),
+            new BankAccountRepository($this->pdo)
         );
 
         return $service->getByInvoiceId($invoiceId);
