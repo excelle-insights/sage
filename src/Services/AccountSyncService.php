@@ -51,9 +51,9 @@ class AccountSyncService
             );
         }
 
-        if ($local->status === 'synced' && $local->sage_id) {
-            return $this->client->getById((int) $local->sage_id);
-        }
+        // if ($local->status === 'synced' && $local->sage_id) {
+        //     return $this->client->getById((int) $local->sage_id);
+        // }
 
         return $local;
     }

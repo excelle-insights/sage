@@ -130,36 +130,36 @@ class SageManager
         return $client->getAll();
     }
 
-    public function getCustomer(string $id): object
-    {
-        $client = new CustomerClient(
-            $this->baseUrl,
-            $this->companyId,
-            $this->auth,
-            $this->http
-        );
-
-        return $client->getById($id);
-    }
-
-    // public function getCustomer(int $localId): object
+    // public function getCustomer(string $id): object
     // {
-    //     $repo    = new CustomerRepository($this->pdo);
-    //     $client  = new CustomerClient(
+    //     $client = new CustomerClient(
     //         $this->baseUrl,
     //         $this->companyId,
     //         $this->auth,
     //         $this->http
     //     );
-    //     $service = new CustomerSyncService(
-    //         $repo,
-    //         $client,
-    //         new CustomerCategoryRepository($this->pdo),
-    //         new SalesRepRepository($this->pdo)
-    //     );
 
-    //     return $service->getByLocalId($localId);
+    //     return $client->getById($id);
     // }
+
+    public function getCustomer(int $localId): object
+    {
+        $repo    = new CustomerRepository($this->pdo);
+        $client  = new CustomerClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+        $service = new CustomerSyncService(
+            $repo,
+            $client,
+            new CustomerCategoryRepository($this->pdo),
+            new SalesRepRepository($this->pdo)
+        );
+
+        return $service->getByLocalId($localId);
+    }
 
     public function createCustomer(array $data): object
     {
