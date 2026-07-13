@@ -1,5 +1,4 @@
 <?php
-
 namespace ExcelleInsights\Sage\Facade;
 
 use PDO;
@@ -10,6 +9,7 @@ use ExcelleInsights\Sage\Support\EnvLoader;
 
 use ExcelleInsights\Sage\Client\CustomerClient;
 use ExcelleInsights\Sage\Repositories\CustomerRepository;
+use ExcelleInsights\Sage\Services\CustomerSyncService;
 
 use ExcelleInsights\Sage\Client\SalesRepClient;
 use ExcelleInsights\Sage\Repositories\SalesRepRepository;
@@ -43,15 +43,6 @@ use ExcelleInsights\Sage\Client\AllocationClient;
 
 
 
-use ExcelleInsights\Sage\Client\InvoiceClient;
-use ExcelleInsights\Sage\Client\PaymentClient;
-use ExcelleInsights\Sage\Repositories\TokenRepository;
-use ExcelleInsights\Sage\Repositories\InvoiceRepository;
-use ExcelleInsights\Sage\Repositories\PaymentRepository;
-use ExcelleInsights\Sage\Repositories\PaymentItemRepository;
-use ExcelleInsights\Sage\Services\CustomerSyncService;
-use ExcelleInsights\Sage\Services\InvoiceSyncService;
-use ExcelleInsights\Sage\Services\PaymentSyncService;
 
 /**
  * Facade for Sage integration
@@ -73,11 +64,11 @@ class SageManager
     ) {
         EnvLoader::load($envRoot);
 
-        $this->baseUrl   = $_ENV['SAGE_BASE_URL'] ?? '';
+        $this->baseUrl = $_ENV['SAGE_BASE_URL'] ?? '';
         $this->companyId = $companyId ?? $_ENV['SAGE_REALM_ID'] ?? '';
 
         if (!$pdo) {
-            $dsn  = $_ENV['DB_DSN'] ?? null;
+            $dsn = $_ENV['DB_DSN'] ?? null;
             $user = $_ENV['DB_USER'] ?? null;
             $pass = $_ENV['DB_PASSWORD'] ?? null;
 
@@ -144,8 +135,8 @@ class SageManager
 
     public function getCustomer(int $localId): object
     {
-        $repo    = new CustomerRepository($this->pdo);
-        $client  = new CustomerClient(
+        $repo = new CustomerRepository($this->pdo);
+        $client = new CustomerClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -163,7 +154,7 @@ class SageManager
 
     public function createCustomer(array $data): object
     {
-        $repo         = new CustomerRepository($this->pdo);
+        $repo = new CustomerRepository($this->pdo);
         $categoryRepo = new CustomerCategoryRepository($this->pdo);
         $salesRepRepo = new SalesRepRepository($this->pdo);
 
@@ -192,8 +183,8 @@ class SageManager
 
     public function createSalesRep(array $data): object
     {
-        $repo    = new SalesRepRepository($this->pdo);
-        $client  = new SalesRepClient(
+        $repo = new SalesRepRepository($this->pdo);
+        $client = new SalesRepClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -206,8 +197,8 @@ class SageManager
 
     public function getSalesRep(int $localId): object
     {
-        $repo    = new SalesRepRepository($this->pdo);
-        $client  = new SalesRepClient(
+        $repo = new SalesRepRepository($this->pdo);
+        $client = new SalesRepClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -217,6 +208,20 @@ class SageManager
 
         return $service->getByLocalId($localId);
     }
+
+    public function getSalesReps(): object
+    {
+        $client = new SalesRepClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+
+        return $client->getAll();
+    }
+
+
     /**
      * -------------------------
      * Customer Category
@@ -225,8 +230,8 @@ class SageManager
 
     public function createCustomerCategory(array $data): object
     {
-        $repo    = new CustomerCategoryRepository($this->pdo);
-        $client  = new CustomerCategoryClient(
+        $repo = new CustomerCategoryRepository($this->pdo);
+        $client = new CustomerCategoryClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -237,10 +242,22 @@ class SageManager
         return $service->create($data);
     }
 
+    public function getCustomerCategorys(): object
+    {
+        $client = new CustomerCategoryClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+
+        return $client->getAll();
+    }
+
     public function getCustomerCategory(int $localId): object
     {
-        $repo    = new CustomerCategoryRepository($this->pdo);
-        $client  = new CustomerCategoryClient(
+        $repo = new CustomerCategoryRepository($this->pdo);
+        $client = new CustomerCategoryClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -260,8 +277,8 @@ class SageManager
 
     public function createAccount(array $data): object
     {
-        $repo    = new AccountRepository($this->pdo);
-        $client  = new AccountClient(
+        $repo = new AccountRepository($this->pdo);
+        $client = new AccountClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -274,8 +291,8 @@ class SageManager
 
     public function getAccount(int $localId): object
     {
-        $repo    = new AccountRepository($this->pdo);
-        $client  = new AccountClient(
+        $repo = new AccountRepository($this->pdo);
+        $client = new AccountClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -314,7 +331,7 @@ class SageManager
 
     public function createTaxType(array $data): object
     {
-        $repo   = new TaxTypeRepository($this->pdo);
+        $repo = new TaxTypeRepository($this->pdo);
         $client = new TaxTypeClient(
             $this->baseUrl,
             $this->companyId,
@@ -325,22 +342,22 @@ class SageManager
         $result = $client->create($data);
 
         $repo->create([
-            'sage_id'    => $result->ID,
-            'name'       => $result->Name,
+            'sage_id' => $result->ID,
+            'name' => $result->Name,
             'percentage' => $result->Percentage,
-            'active'     => $result->Active ?? true,
+            'active' => $result->Active ?? true,
         ]);
 
         return (object) [
-            'status'  => 'synced',
+            'status' => 'synced',
             'sage_id' => $result->ID,
-            'data'    => $result,
+            'data' => $result,
         ];
     }
     public function updateTaxType(int $id, array $data): object
     {
-        $repo    = new TaxTypeRepository($this->pdo);
-        $client  = new TaxTypeClient(
+        $repo = new TaxTypeRepository($this->pdo);
+        $client = new TaxTypeClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -443,8 +460,8 @@ class SageManager
 
     public function createBankAccount(array $data): object
     {
-        $repo    = new BankAccountRepository($this->pdo);
-        $client  = new BankAccountClient(
+        $repo = new BankAccountRepository($this->pdo);
+        $client = new BankAccountClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -457,8 +474,8 @@ class SageManager
 
     public function getBankAccount(int $localId): object
     {
-        $repo    = new BankAccountRepository($this->pdo);
-        $client  = new BankAccountClient(
+        $repo = new BankAccountRepository($this->pdo);
+        $client = new BankAccountClient(
             $this->baseUrl,
             $this->companyId,
             $this->auth,
@@ -468,6 +485,20 @@ class SageManager
 
         return $service->getByLocalId($localId);
     }
+
+    public function getBankAccounts(): object
+    {
+        $client = new BankAccountClient(
+            $this->baseUrl,
+            $this->companyId,
+            $this->auth,
+            $this->http
+        );
+
+        return $client->getAll();
+    }
+
+    
     public function createCustomerReceipt(array $data): object
     {
         $service = new CustomerReceiptSyncService(
